@@ -6,12 +6,18 @@ import express, {
 } from "express";
 import { prisma } from "./prismaClient";
 import { rollWubbieFromDB } from "./utils/rollWubbie";
+import path from "path";
 
 const app = express();
 const PORT = 3000;
 const USER_ID = "test-user";
 
 app.use(express.json());
+
+app.use(
+  "/images",
+  express.static(path.join(__dirname, "../public/images"))
+);
 
 const rollHandler: RequestHandler = async (
   _req: Request,
@@ -36,7 +42,6 @@ const rollHandler: RequestHandler = async (
       include: { wubbie: true },
     });
 
-    // note: no `return res.json(...)`, just call it
     res.json({ wubbie: instance.wubbie });
   } catch (err:any) {
     console.error(err);
