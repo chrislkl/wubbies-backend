@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String            @id @default(cuid())
+  email      String            @unique
+  wubbies    WubbieInstance[]
+}
+
+model Wubbie {
+  id       String   @id
+  name     String
+  rarity   String
+  imageUrl String
+  instances WubbieInstance[]
+}
+
+model WubbieInstance {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  wubbie     Wubbie   @relation(fields: [wubbieId], references: [id])
+  wubbieId   String
+  acquiredAt DateTime @default(now())
+}
