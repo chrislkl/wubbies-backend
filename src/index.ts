@@ -49,10 +49,8 @@ const rollHandler: RequestHandler = async (
   }
 };
 
-// now pass that handler into app.post
 app.post("/roll", rollHandler);
 
-// same pattern for /wallet
 const walletHandler: RequestHandler = async (
   _req,
   res,
@@ -64,7 +62,7 @@ const walletHandler: RequestHandler = async (
       include: { wubbies: { include: { wubbie: true } } },
     });
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      res.json({ wallet: [] });
       return;
     }
     const list = user.wubbies.map((inst) => inst.wubbie);
