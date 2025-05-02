@@ -1,4 +1,4 @@
-import { prisma } from "../prismaClient";    
+import { prisma } from "../auth";    
 import type { Wubbie } from "@prisma/client";
 
 export async function rollWubbieFromDB(): Promise<Wubbie | null> {

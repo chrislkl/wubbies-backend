@@ -1,34 +1,28 @@
-import express, {
-  Request,
-  Response,
-  NextFunction,
-  RequestHandler,
-} from "express";
-import { prisma } from "./prismaClient";
+import express from "express";
+import { prisma } from "./auth";
 import { rollWubbieFromDB } from "./utils/rollWubbie";
 import path from "path";
+import { clerkMiddleware, requireAuth, getAuth } from "./auth";  
 
 const app = express();
 const PORT = 3000;
-const USER_ID = "test-user";
 
 app.use(express.json());
 
-app.use(
-  "/images",
-  express.static(path.join(__dirname, "../public/images"))
-);
+app.use(clerkMiddleware());                      
+app.use("/images", express.static(path.join(__dirname, "../public/images")));
 
-const rollHandler: RequestHandler = async (
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-): Promise<void> => {
+app.post("/roll", requireAuth(), async (req, res): Promise<void> => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({ error: "Not authenticated" })
+      return
+    }
     const user = await prisma.user.upsert({
-      where: { email: USER_ID },
+      where: { id: userId },
       update: {},
-      create: { email: USER_ID },
+      create: { id: userId },
     });
 
     const wubbie = await rollWubbieFromDB();
@@ -43,37 +37,36 @@ const rollHandler: RequestHandler = async (
     });
 
     res.json({ wubbie: instance.wubbie });
-  } catch (err:any) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ error: err.message || err.toString() });
+    res.status(500).json({ error: err.message });
   }
-};
+});
 
-app.post("/roll", rollHandler);
-
-const walletHandler: RequestHandler = async (
-  _req,
-  res,
-  _next
-): Promise<void> => {
+app.get("/wallet", requireAuth(), async (req, res): Promise<void> => {
   try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      res.status(401).json({ error: "Not authenticated" });
+      return
+    }
     const user = await prisma.user.findUnique({
-      where: { email: USER_ID },
+      where: { id: userId },
       include: { wubbies: { include: { wubbie: true } } },
     });
+
     if (!user) {
       res.json({ wallet: [] });
       return;
     }
-    const list = user.wubbies.map((inst) => inst.wubbie);
+
+    const list = user.wubbies.map(inst => inst.wubbie);
     res.json({ wallet: list });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch wallet" });
   }
-};
-
-app.get("/wallet", walletHandler);
+});
 
 app.listen(PORT, () => {
   console.log(`Wubbies backend running at http://localhost:${PORT}`);

@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { prisma } from "../src/prismaClient";
+import { prisma } from "../src/auth";
 
 const wubbies = [
   { id: "1", name: "Sleepy Wubbie", rarity: "common", imageUrl: "/images/SleepyWubbie.png" },
