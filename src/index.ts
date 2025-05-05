@@ -3,6 +3,7 @@ import { prisma } from "./auth";
 import { rollWubbieFromDB } from "./utils/rollWubbie";
 import path from "path";
 import { clerkMiddleware, requireAuth, getAuth } from "./auth";  
+import cors from "cors";
 
 const app = express();
 const PORT = 3000;
@@ -15,6 +16,11 @@ app.use(express.json());
 
 app.use(clerkMiddleware());                      
 app.use("/images", express.static(path.join(__dirname, "../public/images")));
+
+app.use(cors({
+  origin: "https://wubbies-frontend-s2j9.vercel.app", 
+  credentials: true, 
+}));
 
 app.post("/roll", requireAuth(), async (req, res): Promise<void> => {
   try {
