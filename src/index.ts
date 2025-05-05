@@ -7,6 +7,10 @@ import { clerkMiddleware, requireAuth, getAuth } from "./auth";
 const app = express();
 const PORT = 3000;
 
+app.get("/", (_req, res) => {
+  res.send("Wubbies backend is live!");
+});
+
 app.use(express.json());
 
 app.use(clerkMiddleware());                      
