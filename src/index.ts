@@ -2,11 +2,37 @@ import express from "express";
 import { prisma } from "./auth";
 import { rollWubbieFromDB } from "./utils/rollWubbie";
 import path from "path";
-import { clerkMiddleware, requireAuth, getAuth } from "./auth";  
-import cors from "cors";
 
-const app = express();
+import * as prodAuth from "./auth";
+
+const isDev = process.env.NODE_ENV !== "production";
 const PORT = 3000;
+const requireAuth = isDev
+  ? () => (_req: any, _res: any, next: any) => next()
+  : prodAuth.requireAuth;
+
+const getAuth = isDev
+  ? (_req: any) => ({ userId: "dev-user" })
+  : prodAuth.getAuth;
+
+const clerkMiddleware = isDev
+  ? () => (_req: any, _res: any, next: any) => next()
+  : prodAuth.clerkMiddleware;
+
+
+import cors from "cors";
+const app = express();
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+app.options('*', (_req, res) => {
+  res.sendStatus(204);
+});
 
 app.get("/", (_req, res) => {
   res.send("Wubbies backend is live!");
@@ -16,11 +42,6 @@ app.use(express.json());
 
 app.use(clerkMiddleware());                      
 app.use("/images", express.static(path.join(__dirname, "../public/images")));
-
-app.use(cors({
-  origin: "https://wubbies-frontend-s2j9.vercel.app", 
-  credentials: true, 
-}));
 
 app.post("/roll", requireAuth(), async (req, res): Promise<void> => {
   try {
