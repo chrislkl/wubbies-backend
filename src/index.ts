@@ -11,7 +11,7 @@ import cors from "cors";
 const app = express();
 
 const corsOptions = {
-  origin: ['https://wubbies-frontend-s2j9.vercel.app','http://localhost:5173'],
+  origin: ['https://wubbies-frontend-s2j9.vercel.app','https://wubbies.vercel.app','http://localhost:5173'],
   credentials: true,
 };
 
