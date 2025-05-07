@@ -43,18 +43,9 @@ app.use(express.json());
 app.use(clerkMiddleware());                      
 app.use("/images", express.static(path.join(__dirname, "../public/images")));
 
-app.post("/roll", requireAuth(), async (req, res): Promise<void> => {
+app.post("/roll", async (req, res): Promise<void> => {
   try {
     const { userId } = getAuth(req);
-    if (!userId) {
-      res.status(401).json({ error: "Not authenticated" })
-      return
-    }
-    const user = await prisma.user.upsert({
-      where: { id: userId },
-      update: {},
-      create: { id: userId },
-    });
 
     const wubbie = await rollWubbieFromDB();
     if (!wubbie) {
@@ -62,17 +53,28 @@ app.post("/roll", requireAuth(), async (req, res): Promise<void> => {
       return;
     }
 
-    const instance = await prisma.wubbieInstance.create({
-      data: { userId: user.id, wubbieId: wubbie.id },
-      include: { wubbie: true },
-    });
+    if (userId) {
+      await prisma.user.upsert({
+        where: { id: userId },
+        update: {},
+        create: { id: userId }
+      });
 
-    res.json({ wubbie: instance.wubbie });
+      const instance = await prisma.wubbieInstance.create({
+        data: { userId, wubbieId: wubbie.id },
+        include: { wubbie: true },
+      });
+
+      res.json({ wubbie: instance.wubbie });
+    } else {
+      res.json({ wubbie });
+    }
   } catch (err: any) {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
+
 
 app.get("/wallet", requireAuth(), async (req, res): Promise<void> => {
   try {
