@@ -6,6 +6,17 @@ import path from "path";
 import * as prodAuth from "./auth";
 
 const isDev = process.env.NODE_ENV !== "production";
+
+import cors from "cors";
+const app = express();
+
+const corsOptions = {
+  origin: ['https://wubbies-frontend-s2j9.vercel.app/','http://localhost:5173'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 const PORT = 3000;
 const requireAuth = isDev
   ? () => (_req: any, _res: any, next: any) => next()
@@ -18,17 +29,6 @@ const getAuth = isDev
 const clerkMiddleware = isDev
   ? () => (_req: any, _res: any, next: any) => next()
   : prodAuth.clerkMiddleware;
-
-
-import cors from "cors";
-const app = express();
-
-const corsOptions = {
-  origin: 'http://localhost:5173',
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
 
 app.options('*', (_req, res) => {
   res.sendStatus(204);
