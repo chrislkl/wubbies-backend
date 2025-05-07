@@ -7,13 +7,17 @@ export async function rollWubbieFromDB(): Promise<Wubbie | null> {
   const rand = Math.random();
   let pool: Wubbie[];
 
-  if (rand < 0.6) {
+  if (rand < 0.45) {
     pool = allWubbies.filter(w => w.rarity === "common");
-  } else if (rand < 0.9) {
+  } else if (rand < 0.7) {
     pool = allWubbies.filter(w => w.rarity === "uncommon");
-  } else {
+  } else if (rand < 0.9){
     pool = allWubbies.filter(w => w.rarity === "rare");
-  }
+  } else if (rand < 0.98){
+    pool = allWubbies.filter(w => w.rarity === "epic");
+  } else {
+    pool = allWubbies.filter(w => w.rarity === "legendary");
+  } 
 
   if (pool.length === 0) return null;
 
