@@ -71,9 +71,10 @@ npm run dev
 ```
 
 4. Run the frontend:
+```bash
 cd wubbies-frontend
 npm install
 npm run dev
-
+```
 
 by Chris Lew
