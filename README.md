@@ -29,7 +29,7 @@ https://wubbies.vercel.app/
 - **Prisma (ORM)**
 - **Clerk Express SDK (JWT validation)**
 - **CORS-secured REST API**
-- **Deployed on Render**
+- **Deployed on Railway**
 
 ### Database
 - **PostgreSQL** hosted on **Railway**
